@@ -1,6 +1,7 @@
 # Deployment Instructions for dealhub.yitrobc.net
 
 ## Server Details
+
 - **Host**: 216.48.184.73
 - **User**: root
 - **Domain**: https://dealhub.yitrobc.net
@@ -8,11 +9,13 @@
 ## Quick Deployment Steps
 
 ### 1. Make deployment script executable
+
 ```bash
 chmod +x deploy.sh deploy-server.sh
 ```
 
 ### 2. Deploy to server
+
 ```bash
 ./deploy.sh
 ```
@@ -20,12 +23,14 @@ chmod +x deploy.sh deploy-server.sh
 ## Manual Deployment (if script fails)
 
 ### 1. Build and save Docker image
+
 ```bash
 docker build -t dealhub-crm:latest .
 docker save dealhub-crm:latest > dealhub-crm.tar
 ```
 
 ### 2. Create deployment package
+
 ```bash
 tar -czf deployment.tar.gz \
     dealhub-crm.tar \
@@ -36,11 +41,13 @@ tar -czf deployment.tar.gz \
 ```
 
 ### 3. Upload to server
+
 ```bash
 scp deployment.tar.gz root@216.48.184.73:/tmp/
 ```
 
 ### 4. SSH to server and deploy
+
 ```bash
 ssh root@216.48.184.73
 
@@ -69,6 +76,7 @@ docker-compose -f docker-compose.prod.yml ps
 ```
 
 ### 5. Run database migrations
+
 ```bash
 cd /opt/dealhub-crm
 docker-compose -f docker-compose.prod.yml exec app npx prisma migrate deploy
@@ -77,6 +85,7 @@ docker-compose -f docker-compose.prod.yml exec app npx prisma migrate deploy
 ## Post-Deployment
 
 ### Check if everything is running
+
 ```bash
 ssh root@216.48.184.73
 cd /opt/dealhub-crm
@@ -85,26 +94,31 @@ docker-compose -f docker-compose.prod.yml logs -f app
 ```
 
 ### Access the application
+
 - **URL**: http://216.48.184.73:3000 (initially HTTP)
 - **Domain**: https://dealhub.yitrobc.net (after DNS setup)
 
 ### Test accounts (if using in-memory auth)
+
 - **Admin**: admin@yitro.com / admin123
 - **User**: user@yitro.com / user123
 
 ## Troubleshooting
 
 ### View logs
+
 ```bash
 docker-compose -f docker-compose.prod.yml logs -f
 ```
 
 ### Restart services
+
 ```bash
 docker-compose -f docker-compose.prod.yml restart
 ```
 
 ### Check database
+
 ```bash
 docker-compose -f docker-compose.prod.yml exec db psql -U postgres -d dealhub_crm
 ```
@@ -112,6 +126,7 @@ docker-compose -f docker-compose.prod.yml exec db psql -U postgres -d dealhub_cr
 ## SSL Setup (Optional)
 
 To enable HTTPS:
+
 1. Get SSL certificates for dealhub.yitrobc.net
 2. Place certificates in `/opt/dealhub-crm/ssl/`
 3. Uncomment SSL lines in nginx.conf
@@ -120,5 +135,6 @@ To enable HTTPS:
 ## DNS Configuration
 
 Point your domain dealhub.yitrobc.net to 216.48.184.73:
+
 - A record: dealhub.yitrobc.net → 216.48.184.73
 - CNAME record: www.dealhub.yitrobc.net → dealhub.yitrobc.net
