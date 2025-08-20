@@ -5,12 +5,13 @@ import { inMemoryAuth } from "../db/init-db.js";
 
 const DATABASE_URL = process.env.DATABASE_URL;
 
-// Check if DATABASE_URL is valid for Neon (must start with postgresql:// and not be a Prisma URL)
+// Check if DATABASE_URL is valid for Neon (must be actual Neon URL)
 const isValidNeonUrl =
   DATABASE_URL &&
   DATABASE_URL.startsWith("postgresql://") &&
   !DATABASE_URL.includes("prisma+postgres://") &&
-  DATABASE_URL !== "postgresql://your-database-url-here";
+  DATABASE_URL !== "postgresql://your-database-url-here" &&
+  (DATABASE_URL.includes("neon.tech") || DATABASE_URL.includes("neon.aws") || DATABASE_URL.includes("neon.gcp"));
 
 const sql = isValidNeonUrl ? neon(DATABASE_URL) : null;
 
