@@ -1,6 +1,7 @@
 # 🚀 Deploy CRM to dealhub.yitrobc.net
 
 ## Server Details
+
 - **Domain**: https://dealhub.yitrobc.net/
 - **Server**: 216.48.184.73
 - **Login**: `ssh root@216.48.184.73`
@@ -9,6 +10,7 @@
 ## Deployment Steps
 
 ### Step 1: Build and Package
+
 Run these commands in your local terminal:
 
 ```bash
@@ -31,12 +33,14 @@ tar -czf deployment.tar.gz \
 ```
 
 ### Step 2: Upload to Server
+
 ```bash
 # Upload deployment package
 scp deployment.tar.gz root@216.48.184.73:/tmp/
 ```
 
 ### Step 3: Deploy on Server
+
 ```bash
 # SSH to server
 ssh root@216.48.184.73
@@ -70,6 +74,7 @@ docker-compose -f docker-compose.prod.yml exec app npx prisma migrate deploy
 ```
 
 ### Step 4: Verify Deployment
+
 ```bash
 # Check logs
 docker-compose -f docker-compose.prod.yml logs -f app
@@ -87,6 +92,7 @@ curl http://localhost:3000/api/ping
 ## Environment Configuration
 
 Your production environment is pre-configured with:
+
 - ✅ Secure database password
 - ✅ Strong JWT secret
 - ✅ Production-ready settings
@@ -111,6 +117,7 @@ docker-compose -f docker-compose.prod.yml exec db psql -U postgres -d dealhub_cr
 ## SSL Setup (Optional)
 
 To enable HTTPS with SSL certificates:
+
 1. Obtain SSL certificates for dealhub.yitrobc.net
 2. Place them in `/opt/dealhub-crm/ssl/`
 3. Uncomment SSL lines in nginx.conf
@@ -119,6 +126,7 @@ To enable HTTPS with SSL certificates:
 ## Quick Deploy Option
 
 Alternatively, you can use the automated script:
+
 ```bash
 ./deploy.sh
 ```
