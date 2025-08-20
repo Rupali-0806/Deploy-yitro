@@ -1,33 +1,50 @@
 version: "3.8"
 
 services:
-  # Production CRM Application
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: dealhub-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      # Uncomment when you have SSL certificates
+      # - ./ssl:/etc/ssl/certs:ro
+    depends_on:
+      - app
+    restart: unless-stopped
+
+  # Production Application
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: dealhub-crm:latest
+    container_name: dealhub-app
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=production
       - PORT=3000
-      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      - DATABASE_URL=${DATABASE_URL}
       - JWT_SECRET=${JWT_SECRET}
       - EMAIL_USER=${EMAIL_USER}
       - EMAIL_PASS=${EMAIL_PASS}
-      - FRONTEND_URL=https://dealhub.yitrobc.net
     depends_on:
       - db
     restart: unless-stopped
-    networks:
-      - crm-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/ping"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
 
   # PostgreSQL Database
   db:
     image: postgres:15-alpine
+    container_name: dealhub-db
     environment:
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=postgres
+      - POSTGRES_DB=${POSTGRES_DB:-dealhub_crm}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
@@ -35,29 +52,11 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./backups:/backups
     restart: unless-stopped
-    networks:
-      - crm-network
-
-  # Nginx Reverse Proxy (for SSL and routing)
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./ssl:/etc/ssl/certs
-      - ./logs:/var/log/nginx
-    depends_on:
-      - app
-    restart: unless-stopped
-    networks:
-      - crm-network
 
 volumes:
   postgres_data:
     driver: local
 
 networks:
-  crm-network:
-    driver: bridge
+  default:
+    name: dealhub-network
