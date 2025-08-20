@@ -256,17 +256,30 @@ export function RealAuthProvider({ children }: AuthProviderProps) {
     try {
       setLoading(true);
 
+      // Log detailed debugging information
+      const requestUrl = `${API_BASE}/signin`;
+      console.log("🔐 SignIn attempt:", { email, requestUrl, baseUrl: window.location.origin });
+
       // Add timeout for signin request
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
-      const response = await fetch(`${API_BASE}/signin`, {
+      console.log("🌐 Making request to:", requestUrl);
+
+      const response = await fetch(requestUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
         signal: controller.signal,
+      });
+
+      console.log("📨 Response received:", {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url,
+        redirected: response.redirected
       });
 
       clearTimeout(timeoutId);
