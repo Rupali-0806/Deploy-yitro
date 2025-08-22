@@ -1,22 +1,13 @@
 import express from "express";
 import { neonAuth } from "../lib/neonAuth";
 import { emailService } from "../lib/emailService";
-import { neon } from "@neondatabase/serverless";
 import { inMemoryAuth } from "../db/init-db";
 
 const router = express.Router();
-const DATABASE_URL = process.env.DATABASE_URL;
 
-// Check if DATABASE_URL is valid for Neon (must start with postgresql:// and not be a Prisma URL)
-const isValidNeonUrl =
-  DATABASE_URL &&
-  DATABASE_URL.startsWith("postgresql://") &&
-  !DATABASE_URL.includes("prisma+postgres://") &&
-  DATABASE_URL !== "postgresql://your-database-url-here";
-
-const sql = isValidNeonUrl ? neon(DATABASE_URL) : null;
-
-const useDatabase = sql !== null;
+// For SQLite deployment, we'll use in-memory authentication for simplicity
+// In a production SQLite setup, you would use Prisma or another ORM
+const useDatabase = false; // Set to false for SQLite deployment
 
 // Middleware to check admin access
 const requireAdmin = async (req: any, res: any, next: any) => {
