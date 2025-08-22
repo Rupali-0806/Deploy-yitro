@@ -1,6 +1,6 @@
-# Deployment Guide
+# DealHub CRM - Deployment Guide
 
-This is a full-stack CRM application with clearly separated frontend and backend components.
+This is a full-stack CRM application optimized for deployment on a VPS server with SQLite database.
 
 ## Project Structure
 
@@ -8,50 +8,51 @@ This is a full-stack CRM application with clearly separated frontend and backend
 ├── client/           # React Frontend (Vite + TypeScript)
 ├── server/           # Express Backend API
 ├── shared/           # Shared types and utilities
-├── prisma/           # Database schema and migrations
-├── Dockerfile        # Production container
-├── Dockerfile.dev    # Development container
-└── docker-compose.yml # Multi-service setup
+├── prisma/           # Database schema and migrations (SQLite)
+├── data/             # SQLite database files
+├── deploy.sh         # Production deployment script
+├── setup-server.sh   # Server environment setup
+└── init-db.sh        # Database initialization
 ```
 
 ## Quick Start
 
-### Option 1: Docker Compose 
-
-```bash
-# Development environment
-docker-compose up frontend backend db
-
-# Production build test
-docker-compose --profile production up app db
-```
-
-### Option 2: Manual Setup
+### Local Development
 
 ```bash
 # Install dependencies
 npm install
 
-# Development
-npm run dev        # Starts both frontend and backend
+# Initialize database
+npm run init:db
 
-# Production
-npm run build      # Build both frontend and backend
-npm run start      # Start production server
+# Development mode
+npm run dev        # Starts both frontend and backend
+```
+
+### Production Deployment
+
+```bash
+# 1. Set up server environment (run once)
+sudo bash setup-server.sh
+
+# 2. Deploy application
+npm run deploy
 ```
 
 ## Environment Variables
 
-Create a `.env` file:
+The application uses these environment variables:
 
 ```env
-DATABASE_URL=postgresql://username:password@host:port/database
-JWT_SECRET=your-jwt-secret
-EMAIL_USER=your-email@domain.com
-EMAIL_PASS=your-email-password
+DATABASE_URL="file:./data/production.db"
+NODE_ENV=production
+PORT=3000
+JWT_SECRET="your-jwt-secret-key"
+DOMAIN="https://dealhub.yitrobc.net"
 ```
 
-## Frontend (Port 8080)
+## Frontend (Built to dist/spa)
 
 - **Framework**: React 18 + TypeScript
 - **Build Tool**: Vite
@@ -59,64 +60,122 @@ EMAIL_PASS=your-email-password
 - **State Management**: React Query + Context
 - **Location**: `./client/`
 
-## Backend (Port 3001/3000)
+## Backend (Port 3000)
 
 - **Framework**: Express.js + TypeScript
-- **Database**: PostgreSQL with Prisma ORM
+- **Database**: SQLite with Prisma ORM
 - **Authentication**: JWT + bcrypt
-- **Email**: Nodemailer
 - **Location**: `./server/`
 
-## Deployment Options
+## Server Requirements
 
-### 1. Single Container (Production)
+- **OS**: Ubuntu 20.04+ or similar Linux distribution
+- **Node.js**: Version 18.x or higher
+- **Memory**: Minimum 1GB RAM
+- **Storage**: At least 5GB available space
+- **Domain**: Configured to point to server IP
+
+## Production Setup
+
+### 1. Server Preparation (root@216.48.190.58)
 
 ```bash
-docker build -t crm-app .
-docker run -p 3000:3000 -e DATABASE_URL="your-db-url" crm-app
+# Download and run server setup script
+wget https://your-repo/setup-server.sh
+chmod +x setup-server.sh
+sudo ./setup-server.sh
 ```
 
-### 2. Platform-as-a-Service
+This script will:
+- Install Node.js 18.x
+- Install PM2 for process management
+- Install and configure Nginx
+- Set up SSL certificates with Let's Encrypt
+- Configure firewall rules
+- Create application directories
 
-- **Heroku**: Use `Dockerfile` with proper buildpacks
-- **Railway**: Connect Git repo, auto-deploys
-- **DigitalOcean App Platform**: Use docker-compose.yml
-- **AWS ECS/Fargate**: Use Dockerfile with task definitions
+### 2. Application Deployment
 
-### 3. Static Frontend + Serverless Backend
+```bash
+# Clone your repository
+git clone https://your-repo.git /var/www/dealhub
+cd /var/www/dealhub
 
-- **Frontend**: Deploy `dist/spa` to Netlify/Vercel/Cloudflare
-- **Backend**: Deploy as serverless functions (see `netlify/functions/`)
+# Deploy the application
+npm run deploy
+```
 
-### 4. Kubernetes
+The deployment script will:
+- Install production dependencies
+- Build the application
+- Set up SQLite database
+- Configure PM2 process manager
+- Start the application
 
-```yaml
-# k8s deployment example
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: crm-app
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: crm-app
-  template:
-    metadata:
-      labels:
-        app: crm-app
-    spec:
-      containers:
-        - name: crm-app
-          image: your-registry/crm-app:latest
-          ports:
-            - containerPort: 3000
-          env:
-            - name: DATABASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: db-secret
-                  key: url
+### 3. Nginx Configuration
+
+The setup script automatically configures Nginx with:
+- SSL termination
+- Reverse proxy to Node.js application
+- Security headers
+- Gzip compression
+- Static file serving
+
+## Database Management
+
+### SQLite Database
+
+The application uses SQLite for simplicity and performance:
+
+```bash
+# Initialize database
+npm run init:db
+
+# Run migrations
+npx prisma migrate deploy
+
+# Seed test data
+npm run db:seed
+
+# Reset database
+rm -f ./data/production.db && npm run init:db
+```
+
+### Database Location
+
+- **Development**: `./data/dev.db`
+- **Production**: `/var/www/dealhub/data/production.db`
+
+## Process Management
+
+The application runs under PM2 for reliability:
+
+```bash
+# Check status
+pm2 list
+
+# View logs
+pm2 logs dealhub-crm
+
+# Restart application
+pm2 restart dealhub-crm
+
+# Monitor performance
+pm2 monit
+```
+
+## SSL Certificate
+
+SSL certificates are automatically managed by Let's Encrypt:
+
+```bash
+# Check certificate status
+sudo certbot certificates
+
+# Renew certificates manually
+sudo certbot renew
+
+# Auto-renewal is configured via cron
 ```
 
 ## Build Commands
@@ -131,30 +190,115 @@ npm run build:server
 # Both (production)
 npm run build
 
-# Test production build
+# Database setup
+npm run init:db
+
+# Start production server
 npm run start:production
 ```
 
-## Development Scripts
+## Monitoring and Logs
 
+### Application Logs
 ```bash
-npm run dev          # Full-stack development
-npm run test         # Run tests
-npm run typecheck    # TypeScript checking
-npm run format.fix   # Code formatting
+# PM2 logs
+pm2 logs dealhub-crm
+
+# System logs
+tail -f /var/log/dealhub/combined.log
+```
+
+### System Monitoring
+```bash
+# Check application status
+pm2 list
+
+# Monitor system resources
+htop
+
+# Check Nginx status
+sudo systemctl status nginx
 ```
 
 ## Health Checks
 
-- **API Health**: `GET /api/ping`
-- **Frontend**: Check port 8080 accessibility
-- **Database**: Prisma connection status
+- **Application**: `https://dealhub.yitrobc.net/api/ping`
+- **Database**: SQLite file accessibility
+- **SSL**: Certificate validity
+
+## Backup and Recovery
+
+### Database Backup
+```bash
+# Create backup
+cp /var/www/dealhub/data/production.db /var/backups/dealhub-$(date +%Y%m%d).db
+
+# Restore backup
+cp /var/backups/dealhub-YYYYMMDD.db /var/www/dealhub/data/production.db
+pm2 restart dealhub-crm
+```
+
+### Application Backup
+```bash
+# Full application backup
+tar -czf /var/backups/dealhub-app-$(date +%Y%m%d).tar.gz -C /var/www dealhub
+```
 
 ## Troubleshooting
 
-1. **Port conflicts**: Change ports in docker-compose.yml
-2. **Database issues**: Check DATABASE_URL and run `npx prisma migrate dev`
-3. **Build failures**: Ensure all dependencies in package.json
-4. **CORS errors**: Configure backend CORS settings for your domain
+### Common Issues
 
-For hosting support, contact your platform provider with this deployment guide.
+1. **Application won't start**
+   ```bash
+   # Check PM2 logs
+   pm2 logs dealhub-crm
+   
+   # Check database permissions
+   ls -la /var/www/dealhub/data/
+   ```
+
+2. **Database connection errors**
+   ```bash
+   # Verify database file exists
+   ls -la ./data/production.db
+   
+   # Reinitialize database
+   npm run init:db
+   ```
+
+3. **SSL certificate issues**
+   ```bash
+   # Check certificate status
+   sudo certbot certificates
+   
+   # Renew certificate
+   sudo certbot renew --nginx
+   ```
+
+4. **Nginx configuration**
+   ```bash
+   # Test configuration
+   sudo nginx -t
+   
+   # Reload configuration
+   sudo systemctl reload nginx
+   ```
+
+## Security Considerations
+
+- SSL/TLS encryption enabled
+- Security headers configured
+- Firewall rules in place
+- Regular security updates recommended
+- Database file permissions restricted
+- JWT tokens with secure secrets
+
+## Performance Optimization
+
+- Gzip compression enabled
+- Static file caching
+- PM2 cluster mode available
+- Database indexes optimized
+- Nginx reverse proxy caching
+
+For support, contact the development team or refer to the application logs.
