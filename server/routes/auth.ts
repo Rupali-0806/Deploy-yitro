@@ -16,7 +16,7 @@ const authenticateToken = async (req: any, res: any, next: any) => {
   }
 
   try {
-    const decoded = neonAuth.verifyToken(token);
+    const decoded = authService.verifyToken(token);
     req.user = decoded;
     next();
   } catch (error) {
@@ -317,7 +317,7 @@ router.post("/validate-token", async (req, res) => {
       });
     }
 
-    const decoded = neonAuth.verifyToken(token);
+    const decoded = authService.verifyToken(token);
     const user = await neonAuth.getUserById(decoded.userId);
 
     if (!user) {
