@@ -11,12 +11,14 @@ const express = require('express');
 const path = require('path');
 const { createServer } = require('./dist/server/node-build.mjs');
 
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'production';
+const DOMAIN = process.env.DOMAIN || 'https://dealhub.yitrobc.net';
 
-console.log('🚀 Starting Yitro CRM Platform...');
+console.log('🚀 Starting DealHub CRM Platform...');
 console.log(`📊 Environment: ${NODE_ENV}`);
 console.log(`🌐 Port: ${PORT}`);
+console.log(`🌍 Domain: ${DOMAIN}`);
 
 try {
   // Create the server
