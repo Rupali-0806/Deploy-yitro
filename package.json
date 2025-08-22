@@ -19,12 +19,9 @@
     "start": "node start.js",
     "start:dev": "node dist/server/node-build.mjs",
     "start:production": "NODE_ENV=production node start.js",
-<<<<<<< HEAD
     "deploy": "bash deploy.sh",
     "setup:server": "bash setup-server.sh",
     "init:db": "bash init-db.sh",
-=======
->>>>>>> refs/remotes/origin/main
     "test": "vitest --run",
     "test:watch": "vitest",
     "test-config": "tsx server/scripts/test-config.ts",
@@ -34,10 +31,7 @@
     "typecheck:server": "tsc --project server/tsconfig.json",
     "migrate": "npx prisma migrate dev",
     "migrate:prod": "npx prisma migrate deploy",
-    "db:seed": "tsx server/db/setup-test-accounts.ts",
-    "setup": "npm install && npx prisma generate && npx prisma migrate dev",
-    "deploy": "npm run build && npm run migrate:prod",
-    "serve": "NODE_ENV=production npm start"
+    "db:seed": "tsx server/db/setup-test-accounts.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.1",
