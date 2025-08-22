@@ -96,6 +96,7 @@ router.get("/users", requireAdmin, async (req, res) => {
 // Create new user (admin only) - match component endpoint
 router.post("/create-user", requireAdmin, async (req, res) => {
   try {
+    console.log("👤 Creating new user...");
     const {
       email,
       displayName,
@@ -113,31 +114,34 @@ router.post("/create-user", requireAdmin, async (req, res) => {
       });
     }
 
-    // Use the existing signUp method
-    const result = await neonAuth.signUp({
-      email,
-      password,
-      displayName,
-    });
-
-    // Update role in database if using real database
-    if (useDatabase) {
-      await sql!`
-        UPDATE neon_auth.users
-        SET role = ${role}, email_verified = true
-        WHERE email = ${email}
-      `;
-    } else {
-      // For in-memory mode, update the user role
-      console.log(`🔄 Updated user role to ${role} in development mode`);
-      const user = inMemoryAuth.users.get(email);
-      if (user) {
-        user.role = role as "admin" | "user";
-        user.emailVerified = true;
-      }
+    // Check if user already exists
+    if (inMemoryAuth.users.has(email)) {
+      return res.status(400).json({
+        success: false,
+        error: "User already exists with this email",
+      });
     }
 
-    // Send welcome email with login credentials
+    // Create new user ID
+    const newId = (inMemoryAuth.users.size + 1).toString();
+
+    // Create new user in memory
+    const newUser = {
+      id: newId,
+      email,
+      displayName,
+      password, // In production, this would be hashed
+      role: role as "admin" | "user",
+      emailVerified: true,
+      createdAt: new Date(),
+    };
+
+    // Add to in-memory store
+    inMemoryAuth.users.set(email, newUser);
+
+    console.log(`✅ User created: ${email} with role ${role}`);
+
+    // Send welcome email with login credentials (optional)
     try {
       await emailService.sendEmployeeWelcomeEmail(
         email,
@@ -145,6 +149,7 @@ router.post("/create-user", requireAdmin, async (req, res) => {
         email,
         password,
       );
+      console.log("📧 Welcome email sent");
     } catch (emailError) {
       console.error("Failed to send welcome email:", emailError);
       // Don't fail the user creation if email fails
@@ -153,13 +158,16 @@ router.post("/create-user", requireAdmin, async (req, res) => {
     res.status(201).json({
       success: true,
       user: {
-        ...result.user,
-        role,
+        id: newUser.id,
+        email: newUser.email,
+        displayName: newUser.displayName,
+        role: newUser.role,
+        emailVerified: newUser.emailVerified,
         contactNumber,
         department,
         designation,
       },
-      message: "User created successfully. Login credentials sent via email.",
+      message: "User created successfully.",
     });
   } catch (error: any) {
     console.error("Create user error:", error);
