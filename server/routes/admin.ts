@@ -62,37 +62,23 @@ const generateCompanyEmail = (
 // Get all users (admin only)
 router.get("/users", requireAdmin, async (req, res) => {
   try {
-    let users = [];
+    console.log("📋 Fetching users for admin panel...");
 
-    if (useDatabase) {
-      const result = await sql!`
-        SELECT
-          id, email, display_name, role, email_verified,
-          created_at, last_login
-        FROM neon_auth.users
-        ORDER BY created_at DESC
-      `;
+    // Use in-memory users for SQLite deployment
+    const users = Array.from(inMemoryAuth.users.values()).map((user) => ({
+      id: user.id,
+      email: user.email,
+      displayName: user.displayName,
+      role: user.role,
+      emailVerified: user.emailVerified,
+      createdAt: user.createdAt.toISOString(),
+      // Add mock additional fields for display
+      department: user.email === "admin@yitro.com" ? "Administration" : "Sales",
+      designation: user.email === "admin@yitro.com" ? "System Administrator" : "Sales Representative",
+      contactNumber: user.email === "admin@yitro.com" ? "+1-555-0100" : "+1-555-0101",
+    }));
 
-      users = result.map((user) => ({
-        id: user.id,
-        email: user.email,
-        displayName: user.display_name,
-        role: user.role,
-        emailVerified: user.email_verified,
-        createdAt: user.created_at,
-        lastLogin: user.last_login,
-      }));
-    } else {
-      // Fallback to in-memory users
-      users = Array.from(inMemoryAuth.users.values()).map((user) => ({
-        id: user.id,
-        email: user.email,
-        displayName: user.displayName,
-        role: user.role,
-        emailVerified: user.emailVerified,
-        createdAt: user.createdAt.toISOString(),
-      }));
-    }
+    console.log(`✅ Found ${users.length} users`);
 
     res.json({
       success: true,
