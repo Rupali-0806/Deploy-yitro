@@ -97,73 +97,59 @@ router.get("/users", requireAdmin, async (req, res) => {
   }
 });
 
-// Create new user (admin only) - match component endpoint
+// Create new user (admin only) - simplified for SQLite
 router.post("/create-user", requireAdmin, async (req, res) => {
   try {
     const {
       email,
       displayName,
-      password,
       role,
       contactNumber,
       department,
-      designation,
     } = req.body;
 
-    if (!email || !displayName || !password || !role) {
+    if (!email || !displayName || !role) {
       return res.status(400).json({
         success: false,
-        error: "Email, display name, password and role are required",
+        error: "Email, display name, and role are required",
       });
     }
 
-    // Use the existing signUp method
-    const result = await neonAuth.signUp({
-      email,
-      password,
-      displayName,
+    // Check if user already exists
+    const existingUser = await prisma.userProfile.findUnique({
+      where: { email }
     });
 
-    // Update role in database if using real database
-    if (useDatabase) {
-      await sql!`
-        UPDATE neon_auth.users
-        SET role = ${role}, email_verified = true
-        WHERE email = ${email}
-      `;
-    } else {
-      // For in-memory mode, update the user role
-      console.log(`🔄 Updated user role to ${role} in development mode`);
-      const user = inMemoryAuth.users.get(email);
-      if (user) {
-        user.role = role as "admin" | "user";
-        user.emailVerified = true;
-      }
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        error: "User with this email already exists",
+      });
     }
 
-    // Send welcome email with login credentials
-    try {
-      await emailService.sendEmployeeWelcomeEmail(
+    // Create user profile
+    const newUser = await prisma.userProfile.create({
+      data: {
         email,
-        displayName,
-        email,
-        password,
-      );
-    } catch (emailError) {
-      console.error("Failed to send welcome email:", emailError);
-      // Don't fail the user creation if email fails
-    }
+        firstName: displayName.split(' ')[0] || displayName,
+        lastName: displayName.split(' ').slice(1).join(' ') || '',
+        phone: contactNumber,
+        department,
+        role: role.toUpperCase() as any,
+      }
+    });
 
     res.status(201).json({
       success: true,
       user: {
-        ...result.user,
-        role,
-        contactNumber,
-        department,
-        designation,
+        id: newUser.id,
+        email: newUser.email,
+        displayName: `${newUser.firstName} ${newUser.lastName}`.trim(),
+        role: newUser.role?.toLowerCase(),
+        contactNumber: newUser.phone,
+        department: newUser.department,
       },
-      message: "User created successfully. Login credentials sent via email.",
+      message: "User created successfully.",
     });
   } catch (error: any) {
     console.error("Create user error:", error);
