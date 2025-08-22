@@ -2,139 +2,280 @@
 
 ## Server Details
 
-- **Host**: 216.48.184.73
-- **User**: root
+- **Host**: Your server IP address
 - **Domain**: https://dealhub.yitrobc.net
+- **Database**: SQLite (serverless)
+- **Deployment**: Dockerless Node.js with PM2
 
 ## Quick Deployment Steps
 
 ### 1. Make deployment script executable
 
 ```bash
-chmod +x deploy.sh deploy-server.sh
+chmod +x deploy-production.sh
 ```
 
-### 2. Deploy to server
+### 2. Deploy to server (Automated)
 
 ```bash
-./deploy.sh
+sudo ./deploy-production.sh
 ```
 
-## Manual Deployment (if script fails)
+## Manual Deployment Process
 
-### 1. Build and save Docker image
+For detailed step-by-step manual deployment instructions, see:
 
-```bash
-docker build -t dealhub-crm:latest .
-docker save dealhub-crm:latest > dealhub-crm.tar
-```
+**📖 [PRODUCTION_DEPLOYMENT.md](./PRODUCTION_DEPLOYMENT.md)**
 
-### 2. Create deployment package
+### Summary of Manual Steps:
 
-```bash
-tar -czf deployment.tar.gz \
-    dealhub-crm.tar \
-    docker-compose.prod.yml \
-    .env.prod \
-    nginx.conf \
-    deploy-server.sh
-```
+1. **Prepare Server**: Install Node.js 20.x and PM2
+2. **Setup Directories**: Create application and backup directories
+3. **Upload Application**: Transfer files to `/var/www/dealhub-crm`
+4. **Install Dependencies**: `npm install --production`
+5. **Build Application**: `npm run build`
+6. **Configure PM2**: Setup process management
+7. **Install Nginx**: Configure reverse proxy
+8. **Setup SSL**: Install Let's Encrypt certificates
+9. **Configure Firewall**: Setup UFW security rules
 
-### 3. Upload to server
-
-```bash
-scp deployment.tar.gz root@216.48.184.73:/tmp/
-```
-
-### 4. SSH to server and deploy
-
-```bash
-ssh root@216.48.184.73
-
-# On the server:
-cd /tmp
-tar -xzf deployment.tar.gz
-
-# Create app directory
-mkdir -p /opt/dealhub-crm
-mkdir -p /opt/backups
-
-# Move files
-mv docker-compose.prod.yml /opt/dealhub-crm/
-mv nginx.conf /opt/dealhub-crm/
-mv .env.prod /opt/dealhub-crm/.env
-
-# Load Docker image
-docker load < dealhub-crm.tar
-
-# Start application
-cd /opt/dealhub-crm
-docker-compose -f docker-compose.prod.yml up -d
-
-# Check status
-docker-compose -f docker-compose.prod.yml ps
-```
-
-### 5. Run database migrations
-
-```bash
-cd /opt/dealhub-crm
-docker-compose -f docker-compose.prod.yml exec app npx prisma migrate deploy
-```
-
-## Post-Deployment
+## Post-Deployment Verification
 
 ### Check if everything is running
 
 ```bash
-ssh root@216.48.184.73
-cd /opt/dealhub-crm
-docker-compose -f docker-compose.prod.yml ps
-docker-compose -f docker-compose.prod.yml logs -f app
+# Check application status
+pm2 status
+
+# View application logs
+pm2 logs dealhub-crm
+
+# Check Nginx status
+sudo systemctl status nginx
+
+# Test application endpoint
+curl -I https://dealhub.yitrobc.net/api/ping
 ```
 
 ### Access the application
 
-- **URL**: http://216.48.184.73:3000 (initially HTTP)
-- **Domain**: https://dealhub.yitrobc.net (after DNS setup)
+- **Production URL**: https://dealhub.yitrobc.net
+- **Admin Panel**: Login with admin credentials
+- **API Health**: https://dealhub.yitrobc.net/api/ping
 
-### Test accounts (if using in-memory auth)
+### Default Test Accounts
 
 - **Admin**: admin@yitro.com / admin123
 - **User**: user@yitro.com / user123
 
+*Note: Change these credentials after first login*
+
+## Management Commands
+
+### Application Management
+
+```bash
+# View real-time logs
+pm2 logs dealhub-crm
+
+# Restart application
+pm2 restart dealhub-crm
+
+# Stop application
+pm2 stop dealhub-crm
+
+# Monitor resources
+pm2 monit
+```
+
+### Database Management
+
+```bash
+cd /var/www/dealhub-crm
+
+# Backup database
+cp database.db "/var/backups/dealhub-crm/db-$(date +%Y%m%d-%H%M%S).db"
+
+# Run migrations
+npx prisma migrate deploy
+
+# Seed test data
+npm run db:seed
+```
+
+### Server Management
+
+```bash
+# Restart web server
+sudo systemctl restart nginx
+
+# Check SSL certificate
+sudo certbot certificates
+
+# Renew SSL certificate
+sudo certbot renew
+```
+
 ## Troubleshooting
 
-### View logs
+### Application Issues
 
 ```bash
-docker-compose -f docker-compose.prod.yml logs -f
+# Check if Node.js application is running
+curl -I http://localhost:3000/api/ping
+
+# View detailed logs
+pm2 logs dealhub-crm --lines 100
+
+# Check database file
+ls -la /var/www/dealhub-crm/database.db
 ```
 
-### Restart services
+### Web Server Issues
 
 ```bash
-docker-compose -f docker-compose.prod.yml restart
+# Test Nginx configuration
+sudo nginx -t
+
+# Check Nginx error logs
+sudo tail -f /var/log/nginx/error.log
+
+# Check if ports are open
+sudo netstat -tulpn | grep :80
+sudo netstat -tulpn | grep :443
 ```
 
-### Check database
+### SSL Issues
 
 ```bash
-docker-compose -f docker-compose.prod.yml exec db psql -U postgres -d dealhub_crm
+# Check SSL certificate status
+sudo certbot certificates
+
+# Test SSL connection
+openssl s_client -connect dealhub.yitrobc.net:443 -servername dealhub.yitrobc.net
 ```
 
-## SSL Setup (Optional)
+## Updates and Maintenance
 
-To enable HTTPS:
+### Updating the Application
 
-1. Get SSL certificates for dealhub.yitrobc.net
-2. Place certificates in `/opt/dealhub-crm/ssl/`
-3. Uncomment SSL lines in nginx.conf
-4. Restart nginx: `docker-compose -f docker-compose.prod.yml restart nginx`
+```bash
+cd /var/www/dealhub-crm
 
-## DNS Configuration
+# Backup current version
+sudo tar -czf "/var/backups/dealhub-crm/app-$(date +%Y%m%d-%H%M%S).tar.gz" .
 
-Point your domain dealhub.yitrobc.net to 216.48.184.73:
+# Upload new version or pull from git
+# git pull origin main
 
-- A record: dealhub.yitrobc.net → 216.48.184.73
-- CNAME record: www.dealhub.yitrobc.net → dealhub.yitrobc.net
+# Install dependencies and rebuild
+npm install --production
+npm run build
+
+# Restart application
+pm2 restart dealhub-crm
+```
+
+### System Maintenance
+
+```bash
+# Update system packages
+sudo apt update && sudo apt upgrade -y
+
+# Update Node.js if needed
+# Follow Node.js update procedures
+
+# Clean old log files
+sudo logrotate -f /etc/logrotate.conf
+
+# Check disk space
+df -h
+```
+
+## Backup Strategy
+
+### Automated Backups
+
+The deployment script sets up automated daily backups:
+
+- **Database**: SQLite file copied daily
+- **Application**: Full application archive daily
+- **Retention**: 7 days of backups kept
+- **Location**: `/var/backups/dealhub-crm/`
+
+### Manual Backup
+
+```bash
+# Create full backup
+sudo /usr/local/bin/backup-dealhub.sh
+
+# List available backups
+ls -la /var/backups/dealhub-crm/
+```
+
+## Security Checklist
+
+- ✅ SSL certificate installed and working
+- ✅ Firewall configured (UFW) - only SSH, HTTP, HTTPS open
+- ✅ Strong JWT secret configured
+- ✅ Application running as www-data user
+- ✅ Database file permissions secured
+- ✅ Nginx security headers configured
+- ✅ Automated security updates enabled
+
+## Performance Monitoring
+
+### Key Metrics to Monitor
+
+```bash
+# CPU and memory usage
+htop
+
+# Application performance
+pm2 monit
+
+# Disk usage
+df -h
+
+# Network connections
+ss -tuln
+```
+
+### Log Monitoring
+
+```bash
+# Real-time application logs
+pm2 logs dealhub-crm --lines 50
+
+# Nginx access logs
+sudo tail -f /var/log/nginx/access.log
+
+# System logs
+journalctl -f -u nginx
+```
+
+## Support
+
+For additional support:
+
+1. **Check Logs**: Application and server logs for error details
+2. **Verify Configuration**: Ensure all configuration files are correct
+3. **Test Connectivity**: Verify network, DNS, and SSL configuration
+4. **Review Documentation**: [PRODUCTION_DEPLOYMENT.md](./PRODUCTION_DEPLOYMENT.md)
+
+## Success Indicators
+
+✅ **Application Status**: `pm2 status` shows "online"  
+✅ **Web Server**: `systemctl status nginx` shows "active (running)"  
+✅ **SSL Certificate**: `certbot certificates` shows valid certificate  
+✅ **API Response**: `curl -I https://dealhub.yitrobc.net/api/ping` returns 200  
+✅ **Database**: SQLite file exists and is accessible  
+✅ **Login**: Can access admin panel with test credentials  
+
+**🎉 Deployment Complete!**
+
+Your CRM application is now live at: **https://dealhub.yitrobc.net**
+
+---
+
+*For comprehensive deployment instructions, see [PRODUCTION_DEPLOYMENT.md](./PRODUCTION_DEPLOYMENT.md)*
