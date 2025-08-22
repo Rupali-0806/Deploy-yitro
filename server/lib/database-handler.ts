@@ -21,9 +21,9 @@ class InMemoryDatabase {
 
   async initialize() {
     if (this.initialized) return;
-    
+
     console.log("📝 Initializing in-memory database with sample data...");
-    
+
     // Sample accounts
     this.accounts = [
       {
@@ -185,7 +185,8 @@ class InMemoryDatabase {
         id: "act1",
         activityType: "Call",
         dateTime: new Date("2024-01-07T10:00:00Z"),
-        summary: "Initial discovery call with TechCorp. Discussed automation needs.",
+        summary:
+          "Initial discovery call with TechCorp. Discussed automation needs.",
         outcomeDisposition: "Meeting Completed",
         associatedAccount: "acc1",
         associatedContact: "cnt1",
@@ -201,12 +202,16 @@ class InMemoryDatabase {
   }
 
   // Generic pagination helper
-  private paginate<T>(items: T[], page: number, limit: number): PaginatedResponse<T> {
+  private paginate<T>(
+    items: T[],
+    page: number,
+    limit: number,
+  ): PaginatedResponse<T> {
     const total = items.length;
     const totalPages = Math.ceil(total / limit);
     const start = (page - 1) * limit;
     const end = start + limit;
-    
+
     return {
       success: true,
       data: items.slice(start, end),
@@ -223,21 +228,22 @@ class InMemoryDatabase {
   async getContacts(page: number = 1, limit: number = 10, search?: string) {
     await this.initialize();
     let contacts = this.contacts;
-    
+
     if (search) {
-      contacts = contacts.filter(c => 
-        c.firstName.toLowerCase().includes(search.toLowerCase()) ||
-        c.lastName.toLowerCase().includes(search.toLowerCase()) ||
-        c.emailAddress?.toLowerCase().includes(search.toLowerCase())
+      contacts = contacts.filter(
+        (c) =>
+          c.firstName.toLowerCase().includes(search.toLowerCase()) ||
+          c.lastName.toLowerCase().includes(search.toLowerCase()) ||
+          c.emailAddress?.toLowerCase().includes(search.toLowerCase()),
       );
     }
-    
+
     return this.paginate(contacts, page, limit);
   }
 
   async getContact(id: string) {
     await this.initialize();
-    const contact = this.contacts.find(c => c.id === id);
+    const contact = this.contacts.find((c) => c.id === id);
     return contact ? { success: true, data: contact } : null;
   }
 
@@ -252,22 +258,34 @@ class InMemoryDatabase {
       updatedBy: "system",
     };
     this.contacts.push(newContact);
-    return { success: true, data: newContact, message: "Contact created successfully" };
+    return {
+      success: true,
+      data: newContact,
+      message: "Contact created successfully",
+    };
   }
 
   async updateContact(id: string, data: any) {
     await this.initialize();
-    const index = this.contacts.findIndex(c => c.id === id);
+    const index = this.contacts.findIndex((c) => c.id === id);
     if (index !== -1) {
-      this.contacts[index] = { ...this.contacts[index], ...data, updatedAt: new Date() };
-      return { success: true, data: this.contacts[index], message: "Contact updated successfully" };
+      this.contacts[index] = {
+        ...this.contacts[index],
+        ...data,
+        updatedAt: new Date(),
+      };
+      return {
+        success: true,
+        data: this.contacts[index],
+        message: "Contact updated successfully",
+      };
     }
     return null;
   }
 
   async deleteContact(id: string) {
     await this.initialize();
-    const index = this.contacts.findIndex(c => c.id === id);
+    const index = this.contacts.findIndex((c) => c.id === id);
     if (index !== -1) {
       this.contacts.splice(index, 1);
       return { success: true, message: "Contact deleted successfully" };
@@ -279,20 +297,21 @@ class InMemoryDatabase {
   async getAccounts(page: number = 1, limit: number = 10, search?: string) {
     await this.initialize();
     let accounts = this.accounts;
-    
+
     if (search) {
-      accounts = accounts.filter(a => 
-        a.accountName.toLowerCase().includes(search.toLowerCase()) ||
-        a.industry?.toLowerCase().includes(search.toLowerCase())
+      accounts = accounts.filter(
+        (a) =>
+          a.accountName.toLowerCase().includes(search.toLowerCase()) ||
+          a.industry?.toLowerCase().includes(search.toLowerCase()),
       );
     }
-    
+
     return this.paginate(accounts, page, limit);
   }
 
   async getAccount(id: string) {
     await this.initialize();
-    const account = this.accounts.find(a => a.id === id);
+    const account = this.accounts.find((a) => a.id === id);
     return account ? { success: true, data: account } : null;
   }
 
@@ -324,7 +343,10 @@ export class DatabaseHandler {
       await prisma.contact.count();
       return true;
     } catch (error) {
-      console.warn("SQLite database connection failed, using in-memory fallback:", error.message);
+      console.warn(
+        "SQLite database connection failed, using in-memory fallback:",
+        error.message,
+      );
       this.isUsingFallback = true;
       return false;
     }
@@ -332,7 +354,7 @@ export class DatabaseHandler {
 
   async executeWithFallback<T>(
     prismaOperation: () => Promise<T>,
-    fallbackOperation: () => Promise<T>
+    fallbackOperation: () => Promise<T>,
   ): Promise<T> {
     if (this.isUsingFallback) {
       return await fallbackOperation();
@@ -341,7 +363,10 @@ export class DatabaseHandler {
     try {
       return await prismaOperation();
     } catch (error) {
-      console.warn("Database operation failed, falling back to in-memory:", error.message);
+      console.warn(
+        "Database operation failed, falling back to in-memory:",
+        error.message,
+      );
       this.isUsingFallback = true;
       return await fallbackOperation();
     }
@@ -352,13 +377,24 @@ export class DatabaseHandler {
     return this.executeWithFallback(
       async () => {
         const skip = (page - 1) * limit;
-        const where = search ? {
-          OR: [
-            { firstName: { contains: search, mode: "insensitive" as const } },
-            { lastName: { contains: search, mode: "insensitive" as const } },
-            { emailAddress: { contains: search, mode: "insensitive" as const } },
-          ],
-        } : {};
+        const where = search
+          ? {
+              OR: [
+                {
+                  firstName: { contains: search, mode: "insensitive" as const },
+                },
+                {
+                  lastName: { contains: search, mode: "insensitive" as const },
+                },
+                {
+                  emailAddress: {
+                    contains: search,
+                    mode: "insensitive" as const,
+                  },
+                },
+              ],
+            }
+          : {};
 
         const [contacts, total] = await Promise.all([
           prisma.contact.findMany({
@@ -385,7 +421,7 @@ export class DatabaseHandler {
           },
         };
       },
-      () => this.inMemoryDb.getContacts(page, limit, search)
+      () => this.inMemoryDb.getContacts(page, limit, search),
     );
   }
 
@@ -396,9 +432,9 @@ export class DatabaseHandler {
           where: { id },
           include: { account: true, activities: true, deals: true },
         });
-        
+
         if (!contact) return null;
-        
+
         return {
           success: true,
           data: {
@@ -408,7 +444,7 @@ export class DatabaseHandler {
           } as Contact,
         };
       },
-      () => this.inMemoryDb.getContact(id)
+      () => this.inMemoryDb.getContact(id),
     );
   }
 
@@ -418,8 +454,12 @@ export class DatabaseHandler {
         const contact = await prisma.contact.create({
           data: {
             ...data,
-            source: data.source ? data.source.replace(/\s+/g, "_").toUpperCase() : undefined,
-            status: data.status ? data.status.replace(/\s+/g, "_").toUpperCase() : undefined,
+            source: data.source
+              ? data.source.replace(/\s+/g, "_").toUpperCase()
+              : undefined,
+            status: data.status
+              ? data.status.replace(/\s+/g, "_").toUpperCase()
+              : undefined,
             createdBy: "system",
             updatedBy: "system",
           } as any,
@@ -435,7 +475,7 @@ export class DatabaseHandler {
           message: "Contact created successfully",
         };
       },
-      () => this.inMemoryDb.createContact(data)
+      () => this.inMemoryDb.createContact(data),
     );
   }
 
@@ -444,12 +484,21 @@ export class DatabaseHandler {
     return this.executeWithFallback(
       async () => {
         const skip = (page - 1) * limit;
-        const where = search ? {
-          OR: [
-            { accountName: { contains: search, mode: "insensitive" as const } },
-            { industry: { contains: search, mode: "insensitive" as const } },
-          ],
-        } : {};
+        const where = search
+          ? {
+              OR: [
+                {
+                  accountName: {
+                    contains: search,
+                    mode: "insensitive" as const,
+                  },
+                },
+                {
+                  industry: { contains: search, mode: "insensitive" as const },
+                },
+              ],
+            }
+          : {};
 
         const [accounts, total] = await Promise.all([
           prisma.account.findMany({
@@ -477,7 +526,7 @@ export class DatabaseHandler {
           },
         };
       },
-      () => this.inMemoryDb.getAccounts(page, limit, search)
+      () => this.inMemoryDb.getAccounts(page, limit, search),
     );
   }
 
@@ -512,7 +561,7 @@ export class DatabaseHandler {
           },
         };
       },
-      () => this.inMemoryDb.getDeals(page, limit)
+      () => this.inMemoryDb.getDeals(page, limit),
     );
   }
 
@@ -545,7 +594,7 @@ export class DatabaseHandler {
           },
         };
       },
-      () => this.inMemoryDb.getLeads(page, limit)
+      () => this.inMemoryDb.getLeads(page, limit),
     );
   }
 
@@ -578,7 +627,7 @@ export class DatabaseHandler {
           },
         };
       },
-      () => this.inMemoryDb.getActivities(page, limit)
+      () => this.inMemoryDb.getActivities(page, limit),
     );
   }
 
