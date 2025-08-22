@@ -230,50 +230,6 @@ router.delete("/users/:id", requireAdmin, async (req, res) => {
   }
 });
 
-// Resend verification email (admin only)
-router.post(
-  "/users/:id/resend-verification",
-  requireAdmin,
-  async (req, res) => {
-    try {
-      const { id } = req.params;
-
-      const result = await sql`
-      SELECT email, display_name, verification_token 
-      FROM neon_auth.users 
-      WHERE id = ${id} AND email_verified = false
-    `;
-
-      if (result.length === 0) {
-        return res.status(404).json({
-          success: false,
-          error: "User not found or already verified",
-        });
-      }
-
-      const user = result[0];
-
-      // Send verification email
-      await emailService.sendWelcomeEmail(
-        user.email,
-        user.display_name,
-        user.verification_token,
-      );
-
-      res.json({
-        success: true,
-        data: { message: "Verification email sent successfully" },
-      });
-    } catch (error) {
-      console.error("Resend verification error:", error);
-      res.status(500).json({
-        success: false,
-        error: "Failed to send verification email",
-      });
-    }
-  },
-);
-
 // Update user role (admin only)
 router.put("/users/:id/role", requireAdmin, async (req, res) => {
   try {
@@ -287,11 +243,24 @@ router.put("/users/:id/role", requireAdmin, async (req, res) => {
       });
     }
 
-    await sql`
-      UPDATE neon_auth.users
-      SET role = ${role}
-      WHERE id = ${id}
-    `;
+    // Find user by ID and update role
+    let userFound = false;
+    for (const [email, user] of inMemoryAuth.users.entries()) {
+      if (user.id === id) {
+        user.role = role as "admin" | "user";
+        inMemoryAuth.users.set(email, user);
+        userFound = true;
+        console.log(`✅ Updated user ${email} role to ${role}`);
+        break;
+      }
+    }
+
+    if (!userFound) {
+      return res.status(404).json({
+        success: false,
+        error: "User not found",
+      });
+    }
 
     res.json({
       success: true,
