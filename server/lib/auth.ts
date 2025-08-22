@@ -85,7 +85,7 @@ export class AuthService {
     try {
       // Check if user already exists
       const existingUser = await prisma.userProfile.findUnique({
-        where: { email: data.email }
+        where: { email: data.email },
       });
 
       if (existingUser) {
@@ -109,20 +109,20 @@ export class AuthService {
       const newUser = await prisma.userProfile.create({
         data: {
           email: data.email,
-          firstName: data.displayName.split(' ')[0] || data.displayName,
-          lastName: data.displayName.split(' ').slice(1).join(' ') || '',
+          firstName: data.displayName.split(" ")[0] || data.displayName,
+          lastName: data.displayName.split(" ").slice(1).join(" ") || "",
           role: role.toUpperCase() as any,
           emailNotifications: true,
           smsNotifications: false,
           pushNotifications: true,
-        }
+        },
       });
 
       const user: User = {
         id: newUser.id,
         email: newUser.email,
         displayName: `${newUser.firstName} ${newUser.lastName}`.trim(),
-        role: newUser.role?.toLowerCase() as any || 'user',
+        role: (newUser.role?.toLowerCase() as any) || "user",
         emailVerified: true, // Auto-verify for simplicity
         createdAt: newUser.createdAt,
       };
@@ -143,9 +143,9 @@ export class AuthService {
     try {
       // For demo purposes, we'll use a simplified auth
       // In production, you'd want proper password handling
-      
+
       let userRecord = await prisma.userProfile.findUnique({
-        where: { email: data.email }
+        where: { email: data.email },
       });
 
       // If user doesn't exist, create them (demo behavior)
@@ -154,13 +154,13 @@ export class AuthService {
         userRecord = await prisma.userProfile.create({
           data: {
             email: data.email,
-            firstName: data.email.split('@')[0],
-            lastName: '',
+            firstName: data.email.split("@")[0],
+            lastName: "",
             role: role.toUpperCase() as any,
             emailNotifications: true,
             smsNotifications: false,
             pushNotifications: true,
-          }
+          },
         });
       }
 
@@ -168,7 +168,7 @@ export class AuthService {
         id: userRecord.id,
         email: userRecord.email,
         displayName: `${userRecord.firstName} ${userRecord.lastName}`.trim(),
-        role: userRecord.role?.toLowerCase() as any || 'user',
+        role: (userRecord.role?.toLowerCase() as any) || "user",
         emailVerified: true,
         createdAt: userRecord.createdAt,
         lastLogin: new Date(),
@@ -187,7 +187,7 @@ export class AuthService {
   public async getUserById(userId: string): Promise<User | null> {
     try {
       const userRecord = await prisma.userProfile.findUnique({
-        where: { id: userId }
+        where: { id: userId },
       });
 
       if (!userRecord) {
@@ -198,7 +198,7 @@ export class AuthService {
         id: userRecord.id,
         email: userRecord.email,
         displayName: `${userRecord.firstName} ${userRecord.lastName}`.trim(),
-        role: userRecord.role?.toLowerCase() as any || 'user',
+        role: (userRecord.role?.toLowerCase() as any) || "user",
         emailVerified: true,
         createdAt: userRecord.createdAt,
       };

@@ -7,29 +7,34 @@ Your application has been successfully converted from a Dockerized setup to a se
 ## 🔄 Changes Made
 
 ### 1. Database Migration
+
 - ✅ Converted from Neon/PostgreSQL to SQLite
 - ✅ Updated Prisma schema for SQLite
 - ✅ Created SQLite-based auth service
 - ✅ Updated database connection configuration
 
 ### 2. Docker Removal
+
 - ✅ Removed `Dockerfile` and `Dockerfile.dev`
 - ✅ Removed `docker-compose.yml`
 - ✅ Removed Docker-related scripts from `package.json`
 - ✅ Removed Netlify functions and configurations
 
 ### 3. Domain Configuration
+
 - ✅ Configured for `https://dealhub.yitrobc.net`
 - ✅ Updated startup messages and branding
 - ✅ Set proper environment variables
 
 ### 4. Deployment Scripts Created
+
 - ✅ `setup-server.sh` - Server environment setup
 - ✅ `deploy.sh` - Application deployment
 - ✅ `init-db.sh` - Database initialization
 - ✅ Updated `package.json` with deployment commands
 
 ### 5. Documentation Updates
+
 - ✅ Updated `README.md` for new setup
 - ✅ Updated `DEPLOYMENT.md` with server instructions
 - ✅ Created `.env.example` template
@@ -52,6 +57,7 @@ sudo ./setup-server.sh
 ```
 
 This will:
+
 - Install Node.js 18.x
 - Install PM2 process manager
 - Install and configure Nginx
@@ -71,6 +77,7 @@ npm run deploy
 ```
 
 This will:
+
 - Install production dependencies
 - Build the application
 - Set up SQLite database
@@ -80,12 +87,14 @@ This will:
 ### Step 3: Verify Deployment
 
 1. **Check Application Status**:
+
    ```bash
    pm2 list
    pm2 logs dealhub-crm
    ```
 
 2. **Test Application**:
+
    - Visit `https://dealhub.yitrobc.net`
    - Verify SSL certificate
    - Test login functionality
@@ -152,12 +161,14 @@ DOMAIN="https://dealhub.yitrobc.net"
 ## 📋 What's Different
 
 ### Before (Docker)
+
 - Required Docker and docker-compose
 - Used PostgreSQL database
 - Complex multi-container setup
 - Neon authentication service
 
 ### After (Server Deployment)
+
 - Direct server deployment
 - SQLite database (simpler, file-based)
 - Single process with PM2
@@ -188,6 +199,7 @@ If you encounter any issues:
 Your application is now ready for deployment on `dealhub.yitrobc.net`. All Docker dependencies have been removed, and the application is configured for SQLite database and server deployment.
 
 **Next Steps:**
+
 1. Push your code to your repository
 2. Run the server setup script on your server
 3. Deploy the application
