@@ -28,7 +28,10 @@
     "typecheck:server": "tsc --project server/tsconfig.json",
     "migrate": "npx prisma migrate dev",
     "migrate:prod": "npx prisma migrate deploy",
-    "db:seed": "tsx server/db/setup-test-accounts.ts"
+    "db:seed": "tsx server/db/setup-test-accounts.ts",
+    "setup": "npm install && npx prisma generate && npx prisma migrate dev",
+    "deploy": "npm run build && npm run migrate:prod",
+    "serve": "NODE_ENV=production npm start"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.1",
