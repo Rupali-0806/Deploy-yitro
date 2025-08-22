@@ -70,41 +70,23 @@ const generateCompanyEmail = (
 // Get all users (admin only)
 router.get("/users", requireAdmin, async (req, res) => {
   try {
-    let users = [];
+    const userProfiles = await prisma.userProfile.findMany({
+      orderBy: { createdAt: 'desc' }
+    });
 
-    if (useDatabase) {
-      const result = await sql!`
-        SELECT
-          id, email, display_name, role, email_verified,
-          created_at, last_login
-        FROM neon_auth.users
-        ORDER BY created_at DESC
-      `;
-
-      users = result.map((user) => ({
-        id: user.id,
-        email: user.email,
-        displayName: user.display_name,
-        role: user.role,
-        emailVerified: user.email_verified,
-        createdAt: user.created_at,
-        lastLogin: user.last_login,
-      }));
-    } else {
-      // Fallback to in-memory users
-      users = Array.from(inMemoryAuth.users.values()).map((user) => ({
-        id: user.id,
-        email: user.email,
-        displayName: user.displayName,
-        role: user.role,
-        emailVerified: user.emailVerified,
-        createdAt: user.createdAt.toISOString(),
-      }));
-    }
+    const users = userProfiles.map((user) => ({
+      id: user.id,
+      email: user.email,
+      displayName: `${user.firstName} ${user.lastName}`.trim(),
+      role: user.role?.toLowerCase() || 'user',
+      emailVerified: true, // Simplified for SQLite version
+      createdAt: user.createdAt,
+      lastLogin: user.updatedAt, // Use updatedAt as proxy for last login
+    }));
 
     res.json({
       success: true,
-      users, // Match component expectation
+      users,
     });
   } catch (error) {
     console.error("Get users error:", error);
