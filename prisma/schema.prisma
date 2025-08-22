@@ -7,11 +7,7 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-<<<<<<< HEAD
   url      = env("DATABASE_URL")
-=======
-  url      = "file:./database.db"
->>>>>>> refs/remotes/origin/main
 }
 
 model Contact {
