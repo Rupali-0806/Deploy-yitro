@@ -1,189 +1,253 @@
-# Yitro CRM Platform
+# DealHub CRM Platform
 
-## Technology Stack
+A comprehensive Customer Relationship Management system built with React, Express.js, and SQLite, optimized for deployment on `dealhub.yitrobc.net`.
 
-### Frontend
+## 🚀 Features
 
-- **React 18** with TypeScript
-- **Vite** for fast development and building
-- **TailwindCSS** for styling
-- **Radix UI** for component primitives
-- **React Router** for navigation
+- **Complete CRM Functionality**: Manage contacts, accounts, deals, and activities
+- **User Profile Management**: Role-based access control
+- **Real-time Dashboard**: Metrics and analytics
+- **Professional Reports**: Export and analysis tools
+- **Dark/Light Mode**: Modern UI with theme switching
+- **Responsive Design**: Mobile-friendly interface
+- **SQLite Database**: Lightweight and efficient data storage
 
-### Backend
+## 🛠️ Technology Stack
 
-- **Express.js** RESTful API
-- **Prisma ORM** for database management
-- **Neon PostgreSQL** for data persistence
-- **TypeScript** for type safety
+- **Frontend**: React 18, TypeScript, Vite, Tailwind CSS, Radix UI
+- **Backend**: Express.js, TypeScript, Prisma ORM
+- **Database**: SQLite
+- **Authentication**: JWT + bcrypt
+- **Deployment**: PM2, Nginx, Let's Encrypt SSL
 
-### Infrastructure
+## 📋 Quick Start
 
-- **Production-ready** architecture
-- **Database migrations** for schema management
-- **API validation** and error handling
-- **Build optimization** for deployment
-
-##  Installation & Setup
-
-### Prerequisites
-
-- Node.js 18+
-- npm or yarn package manager
-
-### Quick Start
-
-1. **Clone & Install**
-
-   ```bash
-   git clone <repository-url>
-   cd yitro-crm
-   npm install
-   ```
-
-2. **Database Setup**
-   The CRM is pre-configured with a Neon PostgreSQL database. The connection is already established and migrations will run automatically.
-
-3. **Start Development**
-
-   ```bash
-   npm run dev
-   ```
-
-   The application will be available at `http://localhost:8080`
-
-4. **Build for Production**
-   ```bash
-   npm run build
-   ```
-
-##  Usage Guide
-
-### Getting Started
-
-1. **Login**: Use the professional login interface (click "Login" on the landing page)
-2. **Dashboard**: Overview of key metrics and recent activities
-3. **Navigation**: Use the top navigation tabs to access different modules
-
-### Profile & Settings
-
-- Click the **Settings icon** or user avatar in the header
-- Update personal information, contact details, and profile photo
-- Configure notification preferences
-- Set timezone and language preferences
-
-### CRM Modules
-
-#### Leads Management
-
-- **View All Leads**: Comprehensive list with search and filtering
-- **Add New Lead**: Complete lead capture form
-- **Lead Details**: Full contact information and qualification status
-- **Lead Conversion**: Convert qualified leads to active deals
-
-#### Contacts Management
-
-- **Contact List**: Professional contact directory
-- **Contact Details**: Complete contact profiles with relationship tracking
-- **Activities**: Track all interactions with contacts
-- **Account Association**: Link contacts to their organizations
-
-#### Accounts Management
-
-- **Account Directory**: Company and organization database
-- **Account Profiles**: Detailed company information and hierarchies
-- **Relationship Mapping**: Contact associations and deal history
-- **Territory Management**: Geographic and ownership assignments
-
-#### Active Deals Management
-
-- **Sales Pipeline**: Visual pipeline with stage tracking
-- **Deal Management**: Complete opportunity lifecycle
-- **Revenue Forecasting**: Pipeline value and probability tracking
-- **Close Date Management**: Timeline and milestone tracking
-
-#### Activities & Tasks
-
-- **Activity Logging**: Calls, emails, meetings, and notes
-- **Task Management**: Follow-ups and action items
-- **Calendar Integration**: Schedule and timeline management
-- **Outcome Tracking**: Results and next steps
-
-#### Reports & Analytics
-
-- **Sales Performance**: Revenue and quota tracking
-- **Activity Reports**: Communication and engagement metrics
-- **Pipeline Analysis**: Opportunity and forecast reports
-- **Export Capabilities**: Excel and PDF downloads
-
-
-## Configuration
-
-### Environment Variables
-
-The application uses secure environment variables for database connections. These are pre-configured for the included Neon database.
-
-### Customization
-
-- **Branding**: Update logos and company information
-- **User Roles**: Configure access permissions
-- **Business Logic**: Customize sales processes and workflows
-- **Integration**: Connect with external systems
-
-##  Data Structure
-
-### Core Entities
-
-- **Contacts**: Individual people and their information
-- **Accounts**: Companies and organizations
-- **Leads**: Potential customers and prospects
-- **Active Deals**: Sales deals and pipeline management
-- **Activities**: Interactions and communications
-- **Users**: System users and profiles
-
-### Relationships
-
-- Contacts belong to Accounts
-- Active Deals are associated with Accounts and Contacts
-- Activities track interactions across all entities
-- Users own and manage records
-
-##  Security & Privacy
-
-### Data Protection
-
-- **Secure Database**: Encrypted PostgreSQL database
-- **Input Validation**: Comprehensive data validation
-- **Error Handling**: Secure error management
-- **Access Control**: User-based permissions
-
-### Best Practices
-
-- Regular security updates
-- Data backup procedures
-- User access monitoring
-- Compliance preparation
-
-##  Deployment
-
-### Production Build
+### Local Development
 
 ```bash
-npm run build
+# Clone repository
+git clone <repository-url>
+cd dealhub-crm
+
+# Install dependencies
+npm install
+
+# Initialize database
+npm run init:db
+
+# Start development server
+npm run dev
 ```
 
-### Deployment Options
+Access the application at `http://localhost:8080`
 
-- **Netlify**: Automatic deployment from Git
-- **Vercel**: Edge deployment with global CDN
-- **AWS/GCP/Azure**: Cloud platform deployment
-- **Docker**: Containerized deployment
+### Production Deployment
 
-### Development
+#### Server Setup (Run once on root@216.48.190.58)
 
-- **TypeScript**: Full type safety throughout
-- **Component Architecture**: Reusable and maintainable
-- **API Design**: RESTful and consistent
-- **Testing Ready**: Structured for test implementation
+```bash
+# Download and run server setup
+wget <repository-url>/setup-server.sh
+chmod +x setup-server.sh
+sudo ./setup-server.sh
+```
 
+#### Application Deployment
 
+```bash
+# Clone to production directory
+git clone <repository-url> /var/www/dealhub
+cd /var/www/dealhub
+
+# Deploy application
+npm run deploy
+```
+
+The application will be available at `https://dealhub.yitrobc.net`
+
+## 📁 Project Structure
+
+```
+dealhub-crm/
+├── client/              # React frontend application
+│   ├── components/      # Reusable UI components
+│   ├── pages/          # Application pages
+│   ├── services/       # API services
+│   └── hooks/          # Custom React hooks
+├── server/             # Express.js backend
+│   ├── routes/         # API route handlers
+│   ├── lib/            # Utility libraries
+│   └── db/             # Database utilities
+├── shared/             # Shared types and models
+├── prisma/             # Database schema and migrations
+├── data/               # SQLite database files
+├── deploy.sh           # Production deployment script
+├── setup-server.sh     # Server environment setup
+└── init-db.sh          # Database initialization
+```
+
+## 🔧 Available Scripts
+
+```bash
+# Development
+npm run dev              # Start development server
+npm run dev:server       # Start backend only
+
+# Building
+npm run build            # Build both frontend and backend
+npm run build:client     # Build frontend only
+npm run build:server     # Build backend only
+
+# Production
+npm run start            # Start production server
+npm run start:production # Start with production environment
+
+# Database
+npm run init:db          # Initialize SQLite database
+npm run migrate          # Run database migrations
+npm run db:seed          # Seed database with test data
+
+# Deployment
+npm run deploy           # Deploy to production
+npm run setup:server     # Setup server environment
+
+# Testing & Quality
+npm run test             # Run tests
+npm run typecheck        # TypeScript type checking
+npm run format.fix       # Fix code formatting
+```
+
+## 🗄️ Database Management
+
+The application uses SQLite for data storage:
+
+```bash
+# Initialize database
+npm run init:db
+
+# Run migrations
+npx prisma migrate deploy
+
+# View database
+npx prisma studio
+
+# Reset database
+rm -f ./data/production.db && npm run init:db
+```
+
+## 🔐 Environment Configuration
+
+Create a `.env` file for local development:
+
+```env
+DATABASE_URL="file:./data/production.db"
+NODE_ENV=production
+PORT=3000
+JWT_SECRET="your-secure-jwt-secret"
+DOMAIN="https://dealhub.yitrobc.net"
+```
+
+## 🌐 Production Environment
+
+### Server Specifications
+- **Server**: root@216.48.190.58
+- **Domain**: https://dealhub.yitrobc.net
+- **OS**: Ubuntu 20.04+
+- **Node.js**: 18.x
+- **Process Manager**: PM2
+- **Web Server**: Nginx
+- **SSL**: Let's Encrypt
+
+### Monitoring
+
+```bash
+# Check application status
+pm2 list
+
+# View logs
+pm2 logs dealhub-crm
+
+# Monitor performance
+pm2 monit
+
+# Check Nginx status
+sudo systemctl status nginx
+```
+
+## 🔒 Security Features
+
+- SSL/TLS encryption with Let's Encrypt
+- Security headers configuration
+- JWT-based authentication
+- Firewall configuration
+- Secure database file permissions
+- Regular security updates
+
+## 📊 Performance
+
+- Nginx reverse proxy with caching
+- Gzip compression enabled
+- Static file optimization
+- PM2 cluster mode ready
+- Optimized database queries
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+1. **Application won't start**
+   ```bash
+   pm2 logs dealhub-crm
+   npm run init:db
+   ```
+
+2. **Database errors**
+   ```bash
+   ls -la ./data/
+   npx prisma migrate deploy
+   ```
+
+3. **SSL certificate issues**
+   ```bash
+   sudo certbot certificates
+   sudo certbot renew
+   ```
+
+### Log Files
+- Application logs: `/var/log/dealhub/`
+- Nginx logs: `/var/log/nginx/`
+- PM2 logs: `~/.pm2/logs/`
+
+## 📝 API Documentation
+
+The API is available at `https://dealhub.yitrobc.net/api/` with the following endpoints:
+
+- `GET /api/contacts` - List contacts
+- `GET /api/accounts` - List accounts
+- `GET /api/deals` - List deals
+- `GET /api/activities` - List activities
+- `GET /api/leads` - List leads
+- `POST /api/auth/signin` - User authentication
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run tests: `npm test`
+5. Submit a pull request
+
+## 📄 License
+
+This project is proprietary software for Yitro Business Consulting.
+
+## 🆘 Support
+
+For support and questions:
+- Check the [Deployment Guide](./DEPLOYMENT.md)
+- Review application logs
+- Contact the development team
+
+---
+
+**DealHub CRM Platform** - Professional CRM solution for modern businesses.
