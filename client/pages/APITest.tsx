@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { AuthDebugger } from "@/components/AuthDebugger";
 
 export default function APITest() {
   const [testResults, setTestResults] = useState<string[]>([]);
