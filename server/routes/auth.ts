@@ -56,7 +56,7 @@ router.post("/signup", async (req, res) => {
       });
     }
 
-    const result = await neonAuth.signUp({ email, password, displayName });
+    const result = await authService.signUp({ email, password, displayName });
 
     // Send welcome email with verification
     try {
