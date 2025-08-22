@@ -1,6 +1,6 @@
 import express from "express";
-import { neonAuth, User } from "../lib/neonAuth";
-import { emailService } from "../lib/emailService";
+import { authService, User } from "../lib/auth.js";
+import { emailService } from "../lib/emailService.js";
 
 const router = express.Router();
 
