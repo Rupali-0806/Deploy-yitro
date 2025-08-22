@@ -182,65 +182,40 @@ router.post("/create-user", requireAdmin, async (req, res) => {
 router.delete("/users/:id", requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
+    console.log(`🗑️ Attempting to delete user with ID: ${id}`);
 
-    if (useDatabase) {
-      // Prevent deletion of system admin
-      const userCheck = await sql!`
-        SELECT email FROM neon_auth.users WHERE id = ${id}
-      `;
+    // Find user by ID in the in-memory store
+    let userToDelete = null;
+    let userEmail = null;
 
-      if (userCheck.length === 0) {
-        return res.status(404).json({
-          success: false,
-          error: "User not found",
-        });
+    for (const [email, user] of inMemoryAuth.users.entries()) {
+      if (user.id === id) {
+        userToDelete = user;
+        userEmail = email;
+        break;
       }
-
-      if (userCheck[0].email === "admin@yitro.com") {
-        return res.status(403).json({
-          success: false,
-          error: "Cannot delete system administrator",
-        });
-      }
-
-      await sql!`
-        DELETE FROM neon_auth.users WHERE id = ${id}
-      `;
-    } else {
-      // For in-memory fallback, find and delete the user
-      console.log(`Deleting user with ID: ${id} in development mode`);
-
-      // Find user by ID in the in-memory store
-      let userToDelete = null;
-      let userEmail = null;
-
-      for (const [email, user] of inMemoryAuth.users.entries()) {
-        if (user.id === id) {
-          userToDelete = user;
-          userEmail = email;
-          break;
-        }
-      }
-
-      if (!userToDelete) {
-        return res.status(404).json({
-          success: false,
-          error: "User not found",
-        });
-      }
-
-      // Prevent deletion of system admin
-      if (userEmail === "admin@yitro.com") {
-        return res.status(403).json({
-          success: false,
-          error: "Cannot delete system administrator",
-        });
-      }
-
-      // Actually delete the user from in-memory store
-      inMemoryAuth.users.delete(userEmail);
-      console.log(`✅ User ${userEmail} deleted from in-memory store`);
     }
+
+    if (!userToDelete) {
+      console.log(`❌ User with ID ${id} not found`);
+      return res.status(404).json({
+        success: false,
+        error: "User not found",
+      });
+    }
+
+    // Prevent deletion of system admin
+    if (userEmail === "admin@yitro.com") {
+      console.log("❌ Cannot delete system administrator");
+      return res.status(403).json({
+        success: false,
+        error: "Cannot delete system administrator",
+      });
+    }
+
+    // Actually delete the user from in-memory store
+    inMemoryAuth.users.delete(userEmail!);
+    console.log(`✅ User ${userEmail} deleted from in-memory store`);
 
     res.json({
       success: true,
