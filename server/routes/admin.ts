@@ -1,8 +1,7 @@
 import express from "express";
-import { neonAuth } from "../lib/neonAuth";
-import { emailService } from "../lib/emailService";
-import { neon } from "@neondatabase/serverless";
-import { inMemoryAuth } from "../db/init-db";
+import { authService } from "../lib/auth.js";
+import { emailService } from "../lib/emailService.js";
+import { prisma } from "../lib/prisma.js";
 
 const router = express.Router();
 const DATABASE_URL = process.env.DATABASE_URL;
