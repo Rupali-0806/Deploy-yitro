@@ -29,7 +29,7 @@ const requireAdmin = async (req: any, res: any, next: any) => {
   }
 
   try {
-    const decoded = neonAuth.verifyToken(token);
+    const decoded = authService.verifyToken(token);
     if (decoded.role !== "admin") {
       return res
         .status(403)
