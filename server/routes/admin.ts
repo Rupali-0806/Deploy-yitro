@@ -278,24 +278,48 @@ router.put("/users/:id/role", requireAdmin, async (req, res) => {
 // Get company-wide metrics (admin only)
 router.get("/metrics", requireAdmin, async (req, res) => {
   try {
-    // Import prisma dynamically to handle potential connection issues
+    console.log("📊 Fetching admin metrics...");
+
+    // Use simplified metrics for SQLite deployment
     let metrics = {
-      totalUsers: 0,
-      totalAccounts: 0,
-      totalLeads: 0,
-      totalDeals: 0,
-      totalActivities: 0,
-      activeUsers: 0,
-      wonDeals: 0,
-      totalDealValue: 0,
-      conversionRate: 0,
-      recentActivities: [],
+      totalUsers: inMemoryAuth.users.size,
+      totalAccounts: 8,
+      totalLeads: 12,
+      totalDeals: 6,
+      totalActivities: 15,
+      activeUsers: inMemoryAuth.users.size,
+      wonDeals: 3,
+      totalDealValue: 875000,
+      conversionRate: 50.0,
+      recentActivities: [
+        {
+          type: "Call",
+          date: new Date(),
+          summary: "Discovery call with potential client",
+          account: "TechCorp Solutions",
+          contact: "John Smith",
+        },
+        {
+          type: "Email",
+          date: new Date(Date.now() - 3600000),
+          summary: "Sent proposal to prospect",
+          account: "Innovate Inc",
+          contact: "Jane Doe",
+        },
+        {
+          type: "Meeting",
+          date: new Date(Date.now() - 7200000),
+          summary: "Product demo presentation",
+          account: "StartupXYZ",
+          contact: "Sarah Wilson",
+        },
+      ],
     };
 
+    // Try to get real metrics from Prisma if available
     try {
       const { prisma } = await import("../lib/prisma");
 
-      // Get basic counts
       const [
         accountCount,
         leadCount,
@@ -325,7 +349,7 @@ router.get("/metrics", requireAdmin, async (req, res) => {
         }),
       ]);
 
-      // Calculate metrics
+      // Calculate real metrics
       const wonDeals = wonDealsData.length;
       const totalDealValue = wonDealsData.reduce((sum, deal) => {
         const value = parseFloat(deal.dealValue || "0");
@@ -335,12 +359,12 @@ router.get("/metrics", requireAdmin, async (req, res) => {
       const conversionRate = dealCount > 0 ? (wonDeals / dealCount) * 100 : 0;
 
       metrics = {
-        totalUsers: useDatabase ? 0 : 2, // Will be updated below if database is available
+        totalUsers: inMemoryAuth.users.size,
         totalAccounts: accountCount,
         totalLeads: leadCount,
         totalDeals: dealCount,
         totalActivities: activityCount,
-        activeUsers: useDatabase ? 0 : 2, // Simplified for development
+        activeUsers: inMemoryAuth.users.size,
         wonDeals,
         totalDealValue,
         conversionRate: Math.round(conversionRate * 100) / 100,
@@ -352,48 +376,10 @@ router.get("/metrics", requireAdmin, async (req, res) => {
           contact: activity.associatedContact,
         })),
       };
-    } catch (prismaError) {
-      console.log("Prisma not available, using fallback metrics");
-      // Fallback metrics for development
-      metrics = {
-        totalUsers: 2,
-        totalAccounts: 8,
-        totalLeads: 12,
-        totalDeals: 6,
-        totalActivities: 15,
-        activeUsers: 2,
-        wonDeals: 3,
-        totalDealValue: 875000,
-        conversionRate: 50.0,
-        recentActivities: [
-          {
-            type: "Call",
-            date: new Date(),
-            summary: "Discovery call with potential client",
-            account: "TechCorp Solutions",
-            contact: "John Smith",
-          },
-          {
-            type: "Email",
-            date: new Date(Date.now() - 3600000),
-            summary: "Sent proposal to prospect",
-            account: "Innovate Inc",
-            contact: "Jane Doe",
-          },
-        ],
-      };
-    }
 
-    // Get user count from auth system
-    if (useDatabase) {
-      try {
-        const userResult =
-          await sql!`SELECT COUNT(*) as count FROM neon_auth.users`;
-        metrics.totalUsers = parseInt(userResult[0].count);
-        metrics.activeUsers = Math.floor(metrics.totalUsers * 0.75); // Assume 75% active
-      } catch (error) {
-        console.log("Using fallback user metrics");
-      }
+      console.log("✅ Using real metrics from database");
+    } catch (prismaError) {
+      console.log("📊 Using fallback demo metrics");
     }
 
     res.json({
