@@ -87,6 +87,7 @@ sudo ./setup-server.sh
 ```
 
 This script will:
+
 - Install Node.js 18.x
 - Install PM2 for process management
 - Install and configure Nginx
@@ -106,6 +107,7 @@ npm run deploy
 ```
 
 The deployment script will:
+
 - Install production dependencies
 - Build the application
 - Set up SQLite database
@@ -115,6 +117,7 @@ The deployment script will:
 ### 3. Nginx Configuration
 
 The setup script automatically configures Nginx with:
+
 - SSL termination
 - Reverse proxy to Node.js application
 - Security headers
@@ -200,6 +203,7 @@ npm run start:production
 ## Monitoring and Logs
 
 ### Application Logs
+
 ```bash
 # PM2 logs
 pm2 logs dealhub-crm
@@ -209,6 +213,7 @@ tail -f /var/log/dealhub/combined.log
 ```
 
 ### System Monitoring
+
 ```bash
 # Check application status
 pm2 list
@@ -229,6 +234,7 @@ sudo systemctl status nginx
 ## Backup and Recovery
 
 ### Database Backup
+
 ```bash
 # Create backup
 cp /var/www/dealhub/data/production.db /var/backups/dealhub-$(date +%Y%m%d).db
@@ -239,6 +245,7 @@ pm2 restart dealhub-crm
 ```
 
 ### Application Backup
+
 ```bash
 # Full application backup
 tar -czf /var/backups/dealhub-app-$(date +%Y%m%d).tar.gz -C /var/www dealhub
@@ -249,37 +256,41 @@ tar -czf /var/backups/dealhub-app-$(date +%Y%m%d).tar.gz -C /var/www dealhub
 ### Common Issues
 
 1. **Application won't start**
+
    ```bash
    # Check PM2 logs
    pm2 logs dealhub-crm
-   
+
    # Check database permissions
    ls -la /var/www/dealhub/data/
    ```
 
 2. **Database connection errors**
+
    ```bash
    # Verify database file exists
    ls -la ./data/production.db
-   
+
    # Reinitialize database
    npm run init:db
    ```
 
 3. **SSL certificate issues**
+
    ```bash
    # Check certificate status
    sudo certbot certificates
-   
+
    # Renew certificate
    sudo certbot renew --nginx
    ```
 
 4. **Nginx configuration**
+
    ```bash
    # Test configuration
    sudo nginx -t
-   
+
    # Reload configuration
    sudo systemctl reload nginx
    ```

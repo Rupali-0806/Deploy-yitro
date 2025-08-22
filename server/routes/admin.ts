@@ -59,14 +59,14 @@ const generateCompanyEmail = (
 router.get("/users", requireAdmin, async (req, res) => {
   try {
     const userProfiles = await prisma.userProfile.findMany({
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: "desc" },
     });
 
     const users = userProfiles.map((user) => ({
       id: user.id,
       email: user.email,
       displayName: `${user.firstName} ${user.lastName}`.trim(),
-      role: user.role?.toLowerCase() || 'user',
+      role: user.role?.toLowerCase() || "user",
       emailVerified: true, // Simplified for SQLite version
       createdAt: user.createdAt,
       lastLogin: user.updatedAt, // Use updatedAt as proxy for last login
@@ -88,13 +88,7 @@ router.get("/users", requireAdmin, async (req, res) => {
 // Create new user (admin only) - simplified for SQLite
 router.post("/create-user", requireAdmin, async (req, res) => {
   try {
-    const {
-      email,
-      displayName,
-      role,
-      contactNumber,
-      department,
-    } = req.body;
+    const { email, displayName, role, contactNumber, department } = req.body;
 
     if (!email || !displayName || !role) {
       return res.status(400).json({
@@ -105,7 +99,7 @@ router.post("/create-user", requireAdmin, async (req, res) => {
 
     // Check if user already exists
     const existingUser = await prisma.userProfile.findUnique({
-      where: { email }
+      where: { email },
     });
 
     if (existingUser) {
@@ -119,12 +113,12 @@ router.post("/create-user", requireAdmin, async (req, res) => {
     const newUser = await prisma.userProfile.create({
       data: {
         email,
-        firstName: displayName.split(' ')[0] || displayName,
-        lastName: displayName.split(' ').slice(1).join(' ') || '',
+        firstName: displayName.split(" ")[0] || displayName,
+        lastName: displayName.split(" ").slice(1).join(" ") || "",
         phone: contactNumber,
         department,
         role: role.toUpperCase() as any,
-      }
+      },
     });
 
     res.status(201).json({
@@ -155,7 +149,7 @@ router.delete("/users/:id", requireAdmin, async (req, res) => {
 
     // Check if user exists
     const user = await prisma.userProfile.findUnique({
-      where: { id }
+      where: { id },
     });
 
     if (!user) {
@@ -175,7 +169,7 @@ router.delete("/users/:id", requireAdmin, async (req, res) => {
 
     // Delete the user
     await prisma.userProfile.delete({
-      where: { id }
+      where: { id },
     });
 
     res.json({
@@ -200,7 +194,7 @@ router.post(
       success: true,
       message: "Email verification not required in this version",
     });
-  }
+  },
 );
 
 // Update user role (admin only)
@@ -218,7 +212,7 @@ router.put("/users/:id/role", requireAdmin, async (req, res) => {
 
     await prisma.userProfile.update({
       where: { id },
-      data: { role: role.toUpperCase() as any }
+      data: { role: role.toUpperCase() as any },
     });
 
     res.json({

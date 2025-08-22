@@ -150,6 +150,7 @@ DOMAIN="https://dealhub.yitrobc.net"
 ## 🌐 Production Environment
 
 ### Server Specifications
+
 - **Server**: root@216.48.190.58
 - **Domain**: https://dealhub.yitrobc.net
 - **OS**: Ubuntu 20.04+
@@ -196,12 +197,14 @@ sudo systemctl status nginx
 ### Common Issues
 
 1. **Application won't start**
+
    ```bash
    pm2 logs dealhub-crm
    npm run init:db
    ```
 
 2. **Database errors**
+
    ```bash
    ls -la ./data/
    npx prisma migrate deploy
@@ -214,6 +217,7 @@ sudo systemctl status nginx
    ```
 
 ### Log Files
+
 - Application logs: `/var/log/dealhub/`
 - Nginx logs: `/var/log/nginx/`
 - PM2 logs: `~/.pm2/logs/`
@@ -244,6 +248,7 @@ This project is proprietary software for Yitro Business Consulting.
 ## 🆘 Support
 
 For support and questions:
+
 - Check the [Deployment Guide](./DEPLOYMENT.md)
 - Review application logs
 - Contact the development team
