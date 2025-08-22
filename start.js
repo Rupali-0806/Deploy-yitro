@@ -40,9 +40,10 @@ try {
   }
   
   // Start the server
-  app.listen(PORT, () => {
-    console.log('✅ Yitro CRM Platform is running!');
-    console.log(`🌍 Access your CRM at: http://localhost:${PORT}`);
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log('✅ DealHub CRM Platform is running!');
+    console.log(`🌍 Local access: http://localhost:${PORT}`);
+    console.log(`🌐 Production URL: ${DOMAIN}`);
     console.log('📱 Features available:');
     console.log('   • Complete CRM functionality');
     console.log('   • User profile management');
@@ -50,6 +51,7 @@ try {
     console.log('   • Professional reports');
     console.log('   • Dark/Light mode themes');
     console.log('   • Responsive mobile design');
+    console.log('   • SQLite database integration');
     console.log('');
     console.log('🎯 Ready for production use!');
   });
