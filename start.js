@@ -11,7 +11,7 @@ const express = require('express');
 const path = require('path');
 const { createServer } = require('./dist/server/node-build.mjs');
 
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'production';
 
 console.log('🚀 Starting Yitro CRM Platform...');
@@ -40,7 +40,8 @@ try {
   // Start the server
   app.listen(PORT, () => {
     console.log('✅ Yitro CRM Platform is running!');
-    console.log(`🌍 Access your CRM at: http://localhost:${PORT}`);
+    console.log(`🌍 Server running on port: ${PORT}`);
+    console.log(`🌐 Access your CRM at: https://dealhub.yitrobc.net`);
     console.log('📱 Features available:');
     console.log('   • Complete CRM functionality');
     console.log('   • User profile management');
