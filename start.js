@@ -71,11 +71,11 @@ try {
 
 // Handle graceful shutdown
 process.on('SIGTERM', () => {
-  console.log('🛑 Shutting down Yitro CRM Platform gracefully...');
+  console.log('🛑 Shutting down DealHub CRM Platform gracefully...');
   process.exit(0);
 });
 
 process.on('SIGINT', () => {
-  console.log('🛑 Shutting down Yitro CRM Platform gracefully...');
+  console.log('🛑 Shutting down DealHub CRM Platform gracefully...');
   process.exit(0);
 });
