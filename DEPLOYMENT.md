@@ -73,6 +73,7 @@ For complete step-by-step deployment instructions to your custom domain:
 **📖 [See PRODUCTION_DEPLOYMENT.md](./PRODUCTION_DEPLOYMENT.md)**
 
 This guide covers:
+
 - Server setup and Node.js installation
 - Application deployment and configuration
 - PM2 process management
@@ -173,11 +174,13 @@ npm run db:seed
 ## Monitoring
 
 ### Log Locations (when deployed with PM2)
+
 - **Application**: `/var/log/dealhub-crm/`
 - **PM2**: `pm2 logs dealhub-crm`
 - **System**: `journalctl -u nginx`
 
 ### Management Commands
+
 ```bash
 # Application status
 pm2 status
@@ -203,4 +206,4 @@ For complete production deployment with SSL, domain setup, and security configur
 
 ---
 
-*This deployment guide focuses on production-ready, dockerless deployment suitable for professional CRM use.*
+_This deployment guide focuses on production-ready, dockerless deployment suitable for professional CRM use._

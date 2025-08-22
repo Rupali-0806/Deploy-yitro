@@ -22,6 +22,7 @@ sudo ./deploy-production.sh
 ```
 
 This script automatically:
+
 - Installs Node.js 20.x and PM2
 - Sets up application directories
 - Installs dependencies and builds the app
@@ -214,7 +215,7 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_cache_bypass $http_upgrade;
         proxy_redirect off;
-        
+
         # Timeouts
         proxy_connect_timeout 60s;
         proxy_send_timeout 60s;
@@ -524,4 +525,4 @@ Remember to change these credentials after first login!
 
 ---
 
-*This deployment guide ensures a robust, scalable, and secure production setup without Docker containers.*
+_This deployment guide ensures a robust, scalable, and secure production setup without Docker containers._

@@ -5,6 +5,7 @@ A modern, full-stack Customer Relationship Management (CRM) platform built with 
 ## ✨ Features
 
 ### 🎯 Core CRM Functionality
+
 - **Contact Management**: Complete contact lifecycle management
 - **Account Management**: Company and organization tracking
 - **Deal Pipeline**: Sales opportunity management
@@ -13,6 +14,7 @@ A modern, full-stack Customer Relationship Management (CRM) platform built with 
 - **Reporting**: Professional report generation and analytics
 
 ### 🔧 Technical Features
+
 - **Modern React Frontend**: Built with React 18, TypeScript, and Vite
 - **Responsive Design**: Mobile-first design with Tailwind CSS
 - **Dark/Light Mode**: Automatic theme switching with system preference
@@ -101,6 +103,7 @@ npm run format:check # Check code formatting
 ## 📁 Project Structure Details
 
 ### Frontend (`/client`)
+
 - **Framework**: React 18 with TypeScript
 - **Build Tool**: Vite for fast development and optimized builds
 - **Styling**: Tailwind CSS with custom design system
@@ -109,6 +112,7 @@ npm run format:check # Check code formatting
 - **Routing**: React Router v6 for client-side routing
 
 ### Backend (`/server`)
+
 - **Framework**: Express.js with TypeScript
 - **Database**: SQLite with Prisma ORM
 - **Authentication**: JWT with bcrypt password hashing
@@ -116,6 +120,7 @@ npm run format:check # Check code formatting
 - **API Design**: RESTful endpoints with comprehensive error handling
 
 ### Database (`/prisma`)
+
 - **ORM**: Prisma for type-safe database access
 - **Database**: SQLite for development and production
 - **Migrations**: Prisma migrate for schema versioning
@@ -178,18 +183,21 @@ npm run typecheck:server
 ## 🚀 Deployment Options
 
 ### Production Server (Recommended)
+
 - Standard Node.js deployment with PM2 process management
 - Nginx reverse proxy for HTTPS and static file serving
 - SQLite database for reliable, maintenance-free data storage
 - See [PRODUCTION_DEPLOYMENT.md](./PRODUCTION_DEPLOYMENT.md) for complete instructions
 
 ### Platform-as-a-Service
+
 - **Heroku**: Use the provided `package.json` scripts
 - **Railway**: Connect Git repo for automatic deployments
 - **DigitalOcean App Platform**: Direct deployment from repository
 - **Netlify**: Static frontend with serverless backend functions
 
 ### Cloud Providers
+
 - **AWS**: EC2 instances with Application Load Balancer
 - **Google Cloud**: Compute Engine or App Engine
 - **Azure**: App Service or Virtual Machines
@@ -259,4 +267,4 @@ This CRM platform is designed for production use with:
 
 **🌍 Deploy to your custom domain: https://dealhub.yitrobc.net/**
 
-*Built with ❤️ for professional CRM needs*
+_Built with ❤️ for professional CRM needs_

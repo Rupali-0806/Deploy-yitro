@@ -68,7 +68,7 @@ curl -I https://dealhub.yitrobc.net/api/ping
 - **Admin**: admin@yitro.com / admin123
 - **User**: user@yitro.com / user123
 
-*Note: Change these credentials after first login*
+_Note: Change these credentials after first login_
 
 ## Management Commands
 
@@ -270,7 +270,7 @@ For additional support:
 ✅ **SSL Certificate**: `certbot certificates` shows valid certificate  
 ✅ **API Response**: `curl -I https://dealhub.yitrobc.net/api/ping` returns 200  
 ✅ **Database**: SQLite file exists and is accessible  
-✅ **Login**: Can access admin panel with test credentials  
+✅ **Login**: Can access admin panel with test credentials
 
 **🎉 Deployment Complete!**
 
@@ -278,4 +278,4 @@ Your CRM application is now live at: **https://dealhub.yitrobc.net**
 
 ---
 
-*For comprehensive deployment instructions, see [PRODUCTION_DEPLOYMENT.md](./PRODUCTION_DEPLOYMENT.md)*
+_For comprehensive deployment instructions, see [PRODUCTION_DEPLOYMENT.md](./PRODUCTION_DEPLOYMENT.md)_

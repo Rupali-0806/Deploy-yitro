@@ -74,8 +74,12 @@ router.get("/users", requireAdmin, async (req, res) => {
       createdAt: user.createdAt.toISOString(),
       // Add mock additional fields for display
       department: user.email === "admin@yitro.com" ? "Administration" : "Sales",
-      designation: user.email === "admin@yitro.com" ? "System Administrator" : "Sales Representative",
-      contactNumber: user.email === "admin@yitro.com" ? "+1-555-0100" : "+1-555-0101",
+      designation:
+        user.email === "admin@yitro.com"
+          ? "System Administrator"
+          : "Sales Representative",
+      contactNumber:
+        user.email === "admin@yitro.com" ? "+1-555-0100" : "+1-555-0101",
     }));
 
     console.log(`✅ Found ${users.length} users`);
@@ -411,7 +415,8 @@ router.post("/test-config", requireAdmin, async (req, res) => {
     try {
       const { prisma } = await import("../lib/prisma");
       await prisma.userProfile.findFirst();
-      databaseStatus.message = "SQLite database and Prisma ORM working correctly";
+      databaseStatus.message =
+        "SQLite database and Prisma ORM working correctly";
     } catch (error: any) {
       databaseStatus.connected = false;
       databaseStatus.message = `Database connection issue: ${error.message}`;
