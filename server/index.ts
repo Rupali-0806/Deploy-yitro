@@ -1,5 +1,6 @@
 import express, { type Express } from "express";
 import cors from "cors";
+import { corsOptions } from "./config/cors";
 import { handleDemo } from "./routes/demo";
 import * as crmRoutes from "./routes/crm-prisma";
 import authRoutes from "./routes/auth";
