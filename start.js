@@ -57,14 +57,15 @@ try {
   });
   
 } catch (error) {
-  console.error('❌ Failed to start Yitro CRM Platform:');
+  console.error('❌ Failed to start DealHub CRM Platform:');
   console.error(error.message);
   console.error('');
   console.error('📋 Troubleshooting steps:');
   console.error('1. Run "npm install" to ensure dependencies are installed');
   console.error('2. Run "npm run build" to build the application');
-  console.error('3. Check that DATABASE_URL is configured correctly');
+  console.error('3. Check that DATABASE_URL is configured correctly (SQLite)');
   console.error('4. Verify that port', PORT, 'is available');
+  console.error('5. Ensure the data directory exists for SQLite database');
   process.exit(1);
 }
 
